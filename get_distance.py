@@ -2,16 +2,9 @@ import RPi.GPIO as GPIO
 import time
 import numpy as np
 
-GPIO.setmode(GPIO.BCM)
-GPIO.cleanup()
-
 # define the GPIO pins for trigger and echo
 TRIG = 17 # pin 11
 ECHO = 22 # pin 15
-
-# define the pins as input/output
-GPIO.setup(TRIG, GPIO.OUT)
-GPIO.setup(ECHO, GPIO.IN)
 
 
 def get_distance(prev_values):
@@ -36,7 +29,16 @@ def get_distance(prev_values):
     print("object far away")
     return prev_values, distance
 
+
 if __name__ == "__main__":
+
+  GPIO.setmode(GPIO.BCM)
+  GPIO.cleanup()
+
+  # define the pins as input/output
+  GPIO.setup(TRIG, GPIO.OUT)
+  GPIO.setup(ECHO, GPIO.IN)
+
   prev_values = [0,0,0,0,0,0,0] # the length of this list decides your window of moving average
   while True:
     prev_values, distance = get_distance(prev_values)
