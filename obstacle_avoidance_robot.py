@@ -1,44 +1,47 @@
 import RPi.GPIO as GPIO
 import time
-#import motor_control as mc
+import motor_control as mc
+import get_distance as gd
+import sys
 
 GPIO.setmode(GPIO.BCM)
-GPIO.cleanup()
 
 # define the GPIO pins for trigger and echo
 TRIG = 17 # pin 11
 ECHO = 22 # pin 15
-fwd1 = 23 # pin 18
 
 # define the pins as input/output
 GPIO.setup(TRIG, GPIO.OUT)
-GPIO.setup(fwd1, GPIO.OUT)
 GPIO.setup(ECHO, GPIO.IN)
 
+#choose the GPIO pins for mptor control
+fwd1 = 23  # pin 16
+bwd1 = 24 #pin 18
+fwd2 = 16 # pin 36
+bwd2 = 20 # pin 38
 
-def get_distance():
-  GPIO.output(TRIG, True)
-  time.sleep(.0001)
-  GPIO.output(TRIG, False)
-  while GPIO.input(ECHO) == False:
-    start = time.time()
-  while GPIO.input(ECHO) == True:
-    end = time.time()
+# declare selected pin as output pin
+GPIO.setup(fwd1, GPIO.OUT)
+GPIO.setup(bwd1, GPIO.OUT)
+GPIO.setup(fwd2, GPIO.OUT)
+GPIO.setup(bwd2, GPIO.OUT)
+
+
+if __name__ == "__main__":
   try:
-    sig_time = end - start
-    distance = sig_time /0.000058
-    print(" Distance is {} cm".format(distance))
-  except:
-    distance = 1000
-    print("object far away")
-  return distance
+    prev_values = [0,0,0,0,0]
+    while True:
+      prev_values, distance = gd.get_distance(prev_values)
+      if distance <= 4:
+        mc.backward()
+        time.sleep(2)
+        mc.right()
+        time.sleep(.5)
+      else:
+        mc.forward()
+      time.sleep(.1)
+  except KeyboardInterrupt:
+    mc.stop()
+    GPIO.cleanup()
+    sys.exit()
 
-while True:
-  distance = get_distance()
-  if distance < 10:
-   GPIO.output(fwd1, GPIO.LOW)
-  else:
-    GPIO.output(fwd1, GPIO.HIGH)
-  time.sleep(.1)
-
-GPIO.cleanup()
