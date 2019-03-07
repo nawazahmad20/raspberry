@@ -1,5 +1,6 @@
 import RPi.GPIO as GPIO
 import time
+import numpy as np
 
 GPIO.setmode(GPIO.BCM)
 GPIO.cleanup()
@@ -13,7 +14,7 @@ GPIO.setup(TRIG, GPIO.OUT)
 GPIO.setup(ECHO, GPIO.IN)
 
 
-def get_distance():
+def get_distance(prev_values):
   GPIO.output(TRIG, True)
   time.sleep(.0001)
   GPIO.output(TRIG, False)
@@ -23,14 +24,22 @@ def get_distance():
     end = time.time()
   try:
     sig_time = end - start
-    distance = sig_time /0.000058
+    new_distance = sig_time /0.000058
+    prev_values = prev_values[1:] + [new_distance]
+    distance = np.mean(prev_values) # taking moving average
     print(" Distance is {} cm".format(distance))
+    return prev_values, distance
   except:
-    distance = 1000
+    new_distance = 10 # considereing new distance is 20cm or more
+    prev_values = prev_values[1:] + [new_distance]
+    distance = np.mean(prev_values) # taking moving average
     print("object far away")
+    return prev_values, distance
 
-while True:
-  get_distance()
-  time.sleep(.1)
+if __name__ == "__main__":
+  prev_values = [0,0,0,0,0,0,0] # the length of this list decides your window of moving average
+  while True:
+    prev_values, distance = get_distance(prev_values)
+    time.sleep(.1)
 
-GPIO.cleanup()
+  GPIO.cleanup()
