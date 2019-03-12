@@ -62,7 +62,7 @@ class LeNet:
 
 
 
-dataset = '/home/pi/Desktop/tutorials/raspberry'
+dataset = '/home/pi/Desktop/tutorials/raspberry/trainImages/'
 # initialize the number of epochs to train for, initial learning rate,
 # and batch size
 EPOCHS = 5
@@ -90,6 +90,7 @@ for imagePath in imagePaths:
     # extract the class label from the image path and update the
     # labels list
     label = imagePath.split(os.path.sep)[-2]
+    print(label)
     if label == 'forward':
         label = 0
     elif label == 'right':

@@ -7,6 +7,7 @@ import imutils
 import cv2
 import time
 import RPi.GPIO as GPIO
+import sys
 
 from picamera.array import PiRGBArray
 from picamera import PiCamera
@@ -32,10 +33,12 @@ model = load_model("model")
 
 def control_robot(image):
     prediction = np.argmax(model.predict(image))
+    print(model.predict(image))
+    print(prediction)
     if prediction == 0:
         print("forward")
         mc.forward()
-    elif prediction == 1:
+    elif prediction == 2:
         print("left")
         mc.left()
     else:
@@ -45,6 +48,7 @@ def control_robot(image):
 
 if __name__ == "__main__":
     try:
+        mc.stop()
         # initialize the camera and grab a reference to the raw camera capture
         camera = PiCamera()
         camera.resolution = (640, 480)
@@ -62,10 +66,15 @@ if __name__ == "__main__":
           # and occupied/unoccupied text
           image = frame.array
           # show the frame
-          cv2.imshow("Frame", image)
           key = cv2.waitKey(1) & 0xFF
           #cv2.imwrite(str(start) + ".jpg", image)
           #start = start + 1
+
+          image = cv2.resize(image, (28, 28))
+          image = img_to_array(image)
+          image = np.array(image, dtype="float") / 255.0
+          image = image.reshape(-1, 28, 28, 3)
+          #cv2.imshow("Frame", image[0])
 
           control_robot(image)
 
@@ -75,7 +84,7 @@ if __name__ == "__main__":
           # if the `q` key was pressed, break from the loop
           if key == ord("q"):
             break
-          time.sleep(.2)
+          time.sleep(.1)
 
     except KeyboardInterrupt:
         mc.stop()
