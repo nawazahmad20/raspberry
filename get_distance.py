@@ -9,7 +9,7 @@ ECHO = 22 # pin 15
 
 def get_distance(prev_values):
   GPIO.output(TRIG, True)
-  time.sleep(.0001)
+  time.sleep(.00001)
   GPIO.output(TRIG, False)
   while GPIO.input(ECHO) == False:
     start = time.time()
