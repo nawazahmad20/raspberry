@@ -28,7 +28,7 @@ GPIO.setup(bwd1, GPIO.OUT)
 GPIO.setup(fwd2, GPIO.OUT)
 GPIO.setup(bwd2, GPIO.OUT)
 
-model = load_model("model")
+model = load_model("model64")
 
 
 def control_robot(image):
@@ -70,10 +70,10 @@ if __name__ == "__main__":
           #cv2.imwrite(str(start) + ".jpg", image)
           #start = start + 1
 
-          image = cv2.resize(image, (28, 28))
+          image = cv2.resize(image, (64, 64))
           image = img_to_array(image)
           image = np.array(image, dtype="float") / 255.0
-          image = image.reshape(-1, 28, 28, 3)
+          image = image.reshape(-1, 64, 64, 3)
           #cv2.imshow("Frame", image[0])
 
           control_robot(image)
@@ -84,7 +84,7 @@ if __name__ == "__main__":
           # if the `q` key was pressed, break from the loop
           if key == ord("q"):
             break
-          time.sleep(.1)
+          time.sleep(.05)
 
     except KeyboardInterrupt:
         mc.stop()
