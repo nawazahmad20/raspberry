@@ -28,11 +28,11 @@ def left():
   GPIO.output(fwd1, GPIO.HIGH)
   GPIO.output(bwd1, GPIO.LOW)
   GPIO.output(fwd2, GPIO.LOW)
-  GPIO.output(bwd2, GPIO.HIGH)
+  GPIO.output(bwd2, GPIO.LOW)
 
 def right():
   GPIO.output(fwd1, GPIO.LOW)
-  GPIO.output(bwd1, GPIO.HIGH)
+  GPIO.output(bwd1, GPIO.LOW)
   GPIO.output(fwd2, GPIO.HIGH)
   GPIO.output(bwd2, GPIO.LOW)
 
