@@ -38,13 +38,18 @@ class LeNet:
       inputShape = (depth, height, width)
 
     # first set of CONV => RELU => POOL layers
-    model.add(Conv2D(20, (5, 5), padding="same",
+    model.add(Conv2D(40, (5, 5), padding="same",
       input_shape=inputShape))
     model.add(Activation("relu"))
     model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
 
     # second set of CONV => RELU => POOL layers
-    model.add(Conv2D(50, (5, 5), padding="same"))
+    model.add(Conv2D(80, (5, 5), padding="same"))
+    model.add(Activation("relu"))
+    model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
+
+    # third set of CONV => RELU => POOL layers
+    model.add(Conv2D(100, (3, 3), padding="same"))
     model.add(Activation("relu"))
     model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
 
@@ -83,7 +88,7 @@ random.shuffle(imagePaths)
 for imagePath in imagePaths:
     # load the image, pre-process it, and store it in the data list
     image = cv2.imread(imagePath)
-    image = cv2.resize(image, (28, 28))
+    image = cv2.resize(image, (64, 64))
     image = img_to_array(image)
     data.append(image)
 
@@ -123,7 +128,7 @@ testY = to_categorical(testY, num_classes=3)
 
 # initialize the model
 print("[INFO] compiling model...")
-model = LeNet.build(width=28, height=28, depth=3, classes=3)
+model = LeNet.build(width=64, height=64, depth=3, classes=3)
 opt = Adam(lr=INIT_LR, decay=INIT_LR / EPOCHS)
 model.compile(loss="binary_crossentropy", optimizer=opt,
     metrics=["accuracy"])
@@ -136,5 +141,5 @@ H = model.fit(trainX, trainY, batch_size=BS,
  
 # save the model to disk
 print("[INFO] serializing network...")
-model.save("model")
+model.save("model64")
 
