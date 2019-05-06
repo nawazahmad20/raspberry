@@ -11,6 +11,9 @@ import cv2
 import sys
 import readchar
 
+import curses
+import os
+
 GPIO.setmode(GPIO.BCM)
 
 # define the GPIO pins for trigger and echo
@@ -33,19 +36,22 @@ GPIO.setup(bwd1, GPIO.OUT)
 GPIO.setup(fwd2, GPIO.OUT)
 GPIO.setup(bwd2, GPIO.OUT)
 
+key_global = None
 
 def movementOnKeyPress(key):
+  #global key_global
+  #key =  key_global
   print(key)
-  if key == ord('w'):
+  if key == 'w':
     mc.forward()
-  elif key == ord('s'):
+  elif key == 's':
     mc.backward()
-  elif key == ord('a'):
+  elif key == 'a':
     mc.left()
-  elif key == ord('d'):
+  elif key == 'd':
     mc.right()
-  elif key == ord("q"):
-    print('break')
+  elif key == " ":
+    mc.stop()
   else:
   #time.sleep(.1)
     mc.stop()
@@ -72,17 +78,44 @@ def cameradisplay():
     #image = np.array(image, dtype="float") / 255.0
     #image = image.reshape(-1, 28, 28, 3)
     #cv2.imshow("Frame", image[0])
-    movementOnKeyPress(key)
+    #movementOnKeyPress(key)
     rawCapture.truncate(0)
     #time.sleep(.5)
 
+
+def main(win):
+    global key_global
+    win.nodelay(True)
+    key=""
+    win.clear()
+    win.addstr("Detected key:")
+    while 1:
+        try:
+           key = win.getkey()
+           win.clear()
+           win.addstr("Detected key:")
+           win.addstr(str(key))
+           movementOnKeyPress(str(key))
+           #key_global = key
+           if key == os.linesep:
+              break
+        except Exception as e:
+           # No input
+           pass
+
+
 def run_process(process):
+  try:
     process()
+  except:
+    curses.wrapper(main)
 
 
 if __name__ == "__main__":
   try:
-    cameradisplay()
+    processes = (cameradisplay, main,  movementOnKeyPress)
+    pool = Pool(processes=2)
+    pool.map(run_process, processes)
 
   except KeyboardInterrupt:
     mc.stop()
