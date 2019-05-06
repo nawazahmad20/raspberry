@@ -1,8 +1,15 @@
-import RPi.GPIO as GPIO
+import os
+import multiprocessing
+from multiprocessing import Pool
 import time
+import RPi.GPIO as GPIO
 import Utils.motor_control as mc
 import Utils.keydetection as kd
+from picamera.array import PiRGBArray
+from picamera import PiCamera
+import cv2
 import sys
+import readchar
 
 GPIO.setmode(GPIO.BCM)
 
@@ -27,21 +34,56 @@ GPIO.setup(fwd2, GPIO.OUT)
 GPIO.setup(bwd2, GPIO.OUT)
 
 
+def movementOnKeyPress(key):
+  print(key)
+  if key == ord('w'):
+    mc.forward()
+  elif key == ord('s'):
+    mc.backward()
+  elif key == ord('a'):
+    mc.left()
+  elif key == ord('d'):
+    mc.right()
+  elif key == ord("q"):
+    print('break')
+  else:
+  #time.sleep(.1)
+    mc.stop()
+
+
+def cameradisplay():
+  # initialize the camera and grab a reference to the raw camera capture
+  camera = PiCamera()
+  camera.resolution = (640, 480)
+  camera.framerate = 32
+  rawCapture = PiRGBArray(camera, size=(640, 480))
+  # allow the camera to warmup
+  time.sleep(0.5)
+
+  for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
+    # grab the raw NumPy array representing the image, then initialize the timestamp
+    # and occupied/unoccupied text
+    image = frame.array
+    # show the frame
+    cv2.imshow("Frame", image)
+    key = cv2.waitKey(1) & 0xFF
+    #image = cv2.resize(image, (28, 28))
+    #image = img_to_array(image)
+    #image = np.array(image, dtype="float") / 255.0
+    #image = image.reshape(-1, 28, 28, 3)
+    #cv2.imshow("Frame", image[0])
+    movementOnKeyPress(key)
+    rawCapture.truncate(0)
+    #time.sleep(.5)
+
+def run_process(process):
+    process()
+
+
 if __name__ == "__main__":
   try:
-    while True:
-      key = kd.getKey()
-      print(key)
-      if key == 'up':
-        mc.forward()
-      elif key =='down':
-        mc.backward()
-      elif key == 'left':
-        mc.left()
-      elif key == 'right':
-        mc.right()
-      time.sleep(.3)
-      mc.stop()
+    cameradisplay()
+
   except KeyboardInterrupt:
     mc.stop()
     GPIO.cleanup()
