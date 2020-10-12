@@ -4,9 +4,9 @@ from multiprocessing import Pool
 import time
 import RPi.GPIO as GPIO
 import Utils.motor_control as mc
-from picamera.array import PiRGBArray
-from picamera import PiCamera
-import cv2
+#from picamera.array import PiRGBArray
+#from picamera import PiCamera
+#import cv2
 import sys
 import readchar
 import curses
@@ -31,9 +31,9 @@ def movementOnKeyPress(key):
     mc.forward()
   elif key == 's':
     mc.backward()
-  elif key == 'a':
-    mc.left()
   elif key == 'd':
+    mc.left()
+  elif key == 'a':
     mc.right()
   elif key == " ":
     mc.stop()
@@ -89,8 +89,10 @@ def run_process(process):
 
 if __name__ == "__main__":
   try:
-    processes = (cameradisplay, main)
-    pool = Pool(processes=2)
+    #processes = (cameradisplay, main)
+    #pool = Pool(processes=2)
+    processes = [main]
+    pool = Pool(processes=1)
     pool.map(run_process, processes) # run both the processes in parallel
   except KeyboardInterrupt:
     mc.stop() # stop rotation of motors during termination of script
